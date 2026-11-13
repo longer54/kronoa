@@ -469,7 +469,41 @@ impl Core {
         Ok(id)
     }
 
+    /// Add a Google account after a successful sign-in (`google::login`); the refresh token goes to the keyring.
+    pub fn add_google_account(&mut self, email: &str, refresh_token: &str) -> Result<String> {
+        if let Some(a) = self.config.accounts.iter().find(|a| a.kind == "google" && a.username.eq_ignore_ascii_case(email)) {
+            let id = a.id.clone();
+            secrets::store(&self.paths, &id, refresh_token, self.config.allow_plaintext_secrets);
+            crate::google::forget_token(&id);
+            return Ok(id);
+        }
+        let slug: String = email.split('@').next().unwrap_or("").to_lowercase().chars().filter(|c| c.is_ascii_alphanumeric()).take(10).collect();
+        let id = format!("google-{}-{}", if slug.is_empty() { "acc".to_string() } else { slug }, &uuid::Uuid::new_v4().simple().to_string()[..6]);
+        let stored = secrets::store(&self.paths, &id, refresh_token, self.config.allow_plaintext_secrets);
+        if stored == secrets::Stored::Session {
+            eprintln!("kronoa: no keyring available - the Google sign-in is kept for this session only (see README)");
+        }
+        let acc = Account {
+            id: id.clone(),
+            kind: "google".into(),
+            name: format!("Google · {email}"),
+            username: email.into(),
+            secret_ref: secrets::secret_ref(&self.paths, &id),
+            ..Default::default()
+        };
+        self.config.accounts.push(acc);
+        self.config.save(&self.paths)?;
+        self.init(false)?;
+        Ok(id)
+    }
+
     pub fn remove_account(&mut self, key: &str) -> Result<()> {
+        if self.config.accounts.iter().any(|a| a.id == key && a.kind == "google") {
+            if let Some(t) = secrets::load(&self.paths, key) {
+                std::thread::spawn(move || crate::google::revoke(&t));
+            }
+            crate::google::forget_token(key);
+        }
         secrets::delete(&self.paths, key);
         self.config.accounts.retain(|a| a.id != key);
         self.config.save(&self.paths)?;

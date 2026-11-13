@@ -16,12 +16,19 @@ Rectangle {
     property string testMsg: ""
     property bool testOk: false
     property bool adding: false
+    property bool googleBusy: false
 
     function parse(j) { try { return JSON.parse(j) } catch (e) { return null } }
     function setPref(k, v) { be.set_setting(k, JSON.stringify(v)); s.changed() }
 
     Connections {
         target: s.be
+        function onGoogle_done(ok, message) {
+            s.googleBusy = false
+            s.testOk = ok
+            s.testMsg = ok ? qsTr("Signed in as %1").arg(message) : message
+            if (ok) { s.adding = false; s.changed(); s.be.sync_now() }
+        }
         function onAccount_tested(ok, message) { s.testOk = ok; s.testMsg = ok ? qsTr("Connected — %1 calendar(s) found").arg(message) : message }
     }
 
@@ -89,6 +96,11 @@ Rectangle {
                                     delegate: Btn { required property var modelData; text: modelData.t; on: s.prefs.language === modelData.k; onClicked: s.setPref("language", modelData.k) } }
                             }
                             Row2 {
+                                label: qsTr("Theme")
+                                Repeater { model: [{ k: "system", t: qsTr("System") }, { k: "light", t: qsTr("Light") }, { k: "dark", t: qsTr("Dark") }, { k: "navy", t: qsTr("Navy") }]
+                                    delegate: Btn { required property var modelData; text: modelData.t; on: (s.prefs.theme || "system") === modelData.k; onClicked: s.setPref("theme", modelData.k) } }
+                            }
+                            Row2 {
                                 label: qsTr("Week starts on")
                                 Repeater { model: [{ k: "monday", t: qsTr("Monday") }, { k: "sunday", t: qsTr("Sunday") }, { k: "saturday", t: qsTr("Saturday") }]
                                     delegate: Btn { required property var modelData; text: modelData.t; on: s.prefs.weekStart === modelData.k; onClicked: s.setPref("week_start", modelData.k) } }
@@ -139,9 +151,9 @@ Rectangle {
                                     Column {
                                         x: 12; anchors.verticalCenter: parent.verticalCenter
                                         Text { text: modelData.name; color: Theme.fg; font.pixelSize: 13; font.weight: Font.DemiBold }
-                                        Text { text: (modelData.kind === "local" ? qsTr("on this computer") : (modelData.kind === "ics" ? qsTr("ICS subscription") : "CalDAV")) + " · " + qsTr("%n calendar(s)", "", modelData.calendars) + (modelData.status ? " · " + modelData.status : ""); color: Theme.mut; font.pixelSize: 11 }
+                                        Text { text: (modelData.kind === "local" ? qsTr("on this computer") : (modelData.kind === "ics" ? qsTr("ICS subscription") : (modelData.kind === "google" ? "Google Calendar · " + modelData.username : "CalDAV"))) + " · " + qsTr("%n calendar(s)", "", modelData.calendars) + (modelData.status ? " · " + modelData.status : ""); color: Theme.mut; font.pixelSize: 11 }
                                     }
-                                    Btn { visible: modelData.kind !== "local"; anchors.right: parent.right; anchors.rightMargin: 10; anchors.verticalCenter: parent.verticalCenter; text: qsTr("Remove"); onClicked: { s.be.remove_account(modelData.key); s.changed() } }
+                                    Btn { visible: modelData.kind !== "local"; anchors.right: parent.right; anchors.rightMargin: 10; anchors.verticalCenter: parent.verticalCenter; text: modelData.kind === "google" ? qsTr("Disconnect") : qsTr("Remove"); onClicked: { s.be.remove_account(modelData.key); s.changed() } }
                                 }
                             }
                             Row {
@@ -155,6 +167,19 @@ Rectangle {
                                 spacing: 6
                                 property string kind: "caldav"
                                 id: form
+                                Row {
+                                    spacing: 8
+                                    Btn {
+                                        text: s.googleBusy ? qsTr("Waiting for the browser… (click to cancel)") : qsTr("Sign in with Google"); primary: true
+                                        onClicked: {
+                                            if (s.googleBusy) { s.be.google_cancel(); s.googleBusy = false; s.testMsg = ""; return }
+                                            s.testOk = false
+                                            if (!s.be.google_configured()) { s.testMsg = qsTr("Google sign-in needs your own OAuth client: set client_id and client_secret in the [google] section of config.toml (see the README)."); return }
+                                            s.googleBusy = true; s.testMsg = qsTr("Complete the sign-in in your browser…"); s.be.google_login()
+                                        }
+                                    }
+                                    Text { text: qsTr("or add by address:"); color: Theme.mut; font.pixelSize: 12; anchors.verticalCenter: parent.verticalCenter }
+                                }
                                 Row {
                                     spacing: 6
                                     Btn { text: "CalDAV"; on: form.kind === "caldav"; onClicked: form.kind = "caldav" }

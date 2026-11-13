@@ -12,6 +12,8 @@ use std::path::PathBuf;
 pub struct Config {
     /// auto | en | pl
     pub language: String,
+    /// system | light | dark | navy
+    pub theme: String,
     /// monday | sunday | saturday
     pub week_start: String,
     /// 24h | 12h | system
@@ -32,6 +34,23 @@ pub struct Config {
     pub default_calendar: String,
     #[serde(rename = "account")]
     pub accounts: Vec<Account>,
+    /// Your own Google OAuth client ("Desktop app"); see the README.
+    #[serde(skip_serializing_if = "GoogleConfig::is_empty")]
+    pub google: GoogleConfig,
+}
+
+/// The OAuth client used for "Sign in with Google". Never committed; the refresh token is in the keyring.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Default)]
+#[serde(default)]
+pub struct GoogleConfig {
+    pub client_id: String,
+    pub client_secret: String,
+}
+
+impl GoogleConfig {
+    pub fn is_empty(&self) -> bool {
+        self.client_id.is_empty() && self.client_secret.is_empty()
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Default)]
@@ -39,7 +58,7 @@ pub struct Config {
 pub struct Account {
     /// Stable short id, e.g. "home".
     pub id: String,
-    /// caldav | ics | google (planned)
+    /// caldav | ics | google
     pub kind: String,
     pub name: String,
     pub url: String,
@@ -54,6 +73,7 @@ impl Default for Config {
     fn default() -> Self {
         Config {
             language: "auto".into(),
+            theme: "system".into(),
             week_start: "monday".into(),
             time_format: "24h".into(),
             default_view: "week".into(),
@@ -65,6 +85,7 @@ impl Default for Config {
             allow_plaintext_secrets: false,
             default_calendar: String::new(),
             accounts: vec![],
+            google: GoogleConfig::default(),
         }
     }
 }

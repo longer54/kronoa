@@ -8,6 +8,7 @@ pub mod caldav;
 pub mod config;
 pub mod demo;
 pub mod engine;
+pub mod google;
 pub mod ical;
 pub mod model;
 pub mod quickadd;

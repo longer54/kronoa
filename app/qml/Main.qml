@@ -72,6 +72,13 @@ ApplicationWindow {
     function pad2(n) { return (n < 10 ? "0" : "") + n }
     function ymd(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) }
     function sameDay(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate() }
+    function applyTheme() {
+        if (autotestArg !== "" && autoStep > 0) return
+        const arg = Qt.application.arguments.find(a => a.startsWith("--theme="))
+        let t = arg ? arg.substring(8) : (prefs.theme || "system")
+        if (t === "system") t = Qt.styleHints.colorScheme === Qt.ColorScheme.Dark ? "navy" : "light"
+        Theme.name = (t === "dark" || t === "navy") ? t : "light"
+    }
     function firstDow() { const w = prefs.weekStart; return w === "sunday" ? 0 : (w === "saturday" ? 6 : 1) }
     function weekStart(d) { const back = (d.getDay() - firstDow() + 7) % 7; return addDays(sod(d), -back) }
     function cap(s) { return s.length ? s.charAt(0).toUpperCase() + s.slice(1) : s }
@@ -150,6 +157,7 @@ ApplicationWindow {
 
     function refresh() {
         prefs = parse(backend.settings_json()) || {}
+        applyTheme()
         cals = parse(backend.calendars_json()) || []
         nowMs = Date.now()
         if (view === "month") {
@@ -228,8 +236,6 @@ ApplicationWindow {
     Component.onCompleted: {
         lang = backend.lang()
         loc = Qt.locale(lang === "pl" ? "pl_PL" : "en_US")
-        if (Qt.application.arguments.some(a => a === "--theme=dark")) Theme.dark = true
-        else if (!Qt.application.arguments.some(a => a === "--theme=light")) Theme.dark = Qt.styleHints.colorScheme === Qt.ColorScheme.Dark
         refresh()
         view = prefs.defaultView || "week"
         refresh()
@@ -583,7 +589,11 @@ ApplicationWindow {
                             contentWidth: width
                             clip: true
                             boundsBehavior: Flickable.StopAtBounds
-                            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded; width: 8 }
+                            ScrollBar.vertical: ScrollBar {
+                                policy: ScrollBar.AsNeeded; width: 8
+                                contentItem: Rectangle { implicitWidth: 6; radius: 3; color: parent.hovered || parent.pressed ? Theme.scrollHover : Theme.scroll }
+                                background: Rectangle { color: "transparent" }
+                            }
                             onContentHeightChanged: if (contentY === 0 && win.autotestArg === "") Qt.callLater(() => win.scrollToHour(win.prefs.startHour || 7))
 
                             Item {
@@ -668,8 +678,8 @@ ApplicationWindow {
                                             z: busy ? 20 : (isSel ? 10 : 1)
                                             radius: 6
                                             clip: true
-                                            opacity: o.end < win.nowMs && false ? 1 : ((o.endMs < win.nowMs) ? 0.78 : 1)
-                                            color: Qt.tint(Theme.bg, Qt.rgba(ec.r, ec.g, ec.b, o.tentative ? 0.1 : 0.22))
+                                            opacity: o.end < win.nowMs && false ? 1 : ((o.endMs < win.nowMs) ? Theme.pastOpacity : 1)
+                                            color: Qt.tint(Theme.bg, Qt.rgba(ec.r, ec.g, ec.b, o.tentative ? Theme.eventTint * 0.45 : Theme.eventTint))
                                             readonly property color ec: Qt.color(o.color)
                                             border.width: isSel ? 2 : 0
                                             border.color: Theme.sel
@@ -764,8 +774,8 @@ ApplicationWindow {
                                             x: index * weekv.colW; width: weekv.colW
                                             y: ((new Date(win.nowMs).getHours() * 60 + new Date(win.nowMs).getMinutes()) / 60) * win.hh
                                             z: 30
-                                            Rectangle { width: parent.width; height: 2; color: Theme.acc; y: -1 }
-                                            Rectangle { x: -5; y: -5; width: 10; height: 10; radius: 5; color: Theme.acc }
+                                            Rectangle { width: parent.width; height: 2; color: Theme.nowLine; y: -1 }
+                                            Rectangle { x: -5; y: -5; width: 10; height: 10; radius: 5; color: Theme.nowLine }
                                         }
                                     }
                                 }
@@ -1121,6 +1131,7 @@ ApplicationWindow {
 
         // ---- settings ------------------------------------------------------------------------
         Loader {
+            id: settingsLoader
             anchors.fill: parent
             z: 200
             active: win.settingsOpen
@@ -1194,7 +1205,7 @@ ApplicationWindow {
         repeat: true
         onTriggered: {
             const s = win.autoStep++
-            if (s === 0) { win.scrollToHour(7); win.shot("week-light") }
+            if (s === 0) { Theme.name = "light"; win.scrollToHour(7); win.shot("week-light") }
             else if (s === 1) { const o = win.placed.find(p => p.o.title.indexOf("Przegl") === 0 || p.o.title.indexOf("Project") === 0); if (o) win.select(o.o.id, o.o.startMs); console.warn("AUTOTEST placed", win.placed.length) }
             else if (s === 2) { win.shot("week-selected") }
             else if (s === 3) { palette.open(); pin.text = win.isPl ? "Rozmowa o budżecie w poniedziałek 15:30 45 min co tydzień" : "Budget talk monday 3:30pm 45 min weekly" }
@@ -1206,11 +1217,15 @@ ApplicationWindow {
             else if (s === 9) { win.anchor = new Date(); win.setView("day") }
             else if (s === 10) { win.shot("day") }
             else if (s === 11) { win.setView("week"); win.settingsOpen = true }
-            else if (s === 12) { win.shot("settings") }
-            else if (s === 13) { win.settingsOpen = false; Theme.dark = true; win.select(-1, 0) }
-            else if (s === 14) { win.shot("week-dark") }
-            else if (s === 15) { win.doUndo(); console.warn("AUTOTEST undo", win.placed.length) }
-            else if (s === 16) { console.warn("AUTOTEST done"); Qt.quit() }
+            else if (s === 12) { win.shot("settings"); if (settingsLoader.item) { settingsLoader.item.tab = "accounts"; settingsLoader.item.adding = true } }
+            else if (s === 13) { win.shot("settings-accounts") }
+            else if (s === 14) { if (settingsLoader.item) { settingsLoader.item.tab = "general"; settingsLoader.item.adding = false }; Theme.name = "navy"; win.shot("settings-navy") }
+            else if (s === 15) { win.settingsOpen = false; Theme.name = "dark"; win.select(-1, 0); win.scrollToHour(Math.max(0, Math.min(13, new Date().getHours() - 9))) }
+            else if (s === 16) { win.shot("week-dark") }
+            else if (s === 17) { Theme.name = "navy"; win.scrollToHour(Math.max(0, Math.min(13, new Date().getHours() - 9))) }
+            else if (s === 18) { win.shot("week-navy") }
+            else if (s === 19) { win.doUndo(); console.warn("AUTOTEST undo", win.placed.length) }
+            else if (s === 20) { console.warn("AUTOTEST done"); Qt.quit() }
         }
     }
 }

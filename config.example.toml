@@ -5,3 +5,10 @@ time_format = "24h"      # 24h | 12h | system
 default_view = "week"
 default_reminder = 10
 sync_interval = 15
+
+# Google Calendar ("Sign in with Google"): your OWN OAuth client of type "Desktop app"
+# (see README, section "Google Calendar"). Or use KRONOA_GOOGLE_CLIENT_ID / KRONOA_GOOGLE_CLIENT_SECRET.
+# The refresh token is kept in the system keyring, never in this file.
+[google]
+client_id = "YOUR_CLIENT_ID.apps.googleusercontent.com"
+client_secret = "YOUR_CLIENT_SECRET"

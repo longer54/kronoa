@@ -1,4 +1,4 @@
-//! Synchronisation with CalDAV accounts and ICS subscriptions.
+//! Synchronisation with CalDAV accounts, Google Calendar (see `google.rs`) and ICS subscriptions.
 //!
 //! Runs on its own `Store` connection (SQLite in WAL mode), so the UI thread is never blocked.
 //! CalDAV: push the offline outbox first, then pull what changed (ctag, then per-object etags).
@@ -33,10 +33,10 @@ pub fn sync_all(paths: &Paths, config: &Config) -> Vec<(String, std::result::Res
     };
     let mut out = vec![];
     for (key, src) in store.sources().unwrap_or_default() {
-        if matches!(src.kind, SourceKind::Local | SourceKind::Google) || !config.accounts.iter().any(|a| a.id == key) {
+        if src.kind == SourceKind::Local || !config.accounts.iter().any(|a| a.id == key) {
             continue;
         }
-        let r = sync_source(&store, paths, &key, &src);
+        let r = sync_source(&store, paths, config, &key, &src);
         match &r {
             Ok(msg) => {
                 let _ = store.set_source_status(src.id, msg, true);
@@ -50,10 +50,11 @@ pub fn sync_all(paths: &Paths, config: &Config) -> Vec<(String, std::result::Res
     out
 }
 
-pub fn sync_source(store: &Store, paths: &Paths, key: &str, src: &Source) -> Result<String> {
+pub fn sync_source(store: &Store, paths: &Paths, config: &Config, key: &str, src: &Source) -> Result<String> {
     match src.kind {
         SourceKind::Ics => sync_ics(store, src),
         SourceKind::Caldav => sync_caldav(store, paths, key, src),
+        SourceKind::Google => crate::google::sync_account(store, paths, config, key, src),
         _ => Ok(String::new()),
     }
 }

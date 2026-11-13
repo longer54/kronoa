@@ -69,6 +69,14 @@ pub mod qobject {
         /// Verify an account in the background; answered by `account_tested`.
         #[qinvokable]
         fn test_account(self: &Backend, kind: &QString, url: &QString, username: &QString, password: &QString);
+        /// True when a Google OAuth client is configured ([google] in config.toml or the environment).
+        #[qinvokable]
+        fn google_configured(self: &Backend) -> bool;
+        /// Open the browser for "Sign in with Google"; answered by `google_done`.
+        #[qinvokable]
+        fn google_login(self: &Backend);
+        #[qinvokable]
+        fn google_cancel(self: &Backend);
         #[qinvokable]
         fn add_account(self: &Backend, kind: &QString, name: &QString, url: &QString, username: &QString, password: &QString, color: &QString) -> QString;
         #[qinvokable]
@@ -86,6 +94,8 @@ pub mod qobject {
         #[qsignal]
         fn synced(self: Pin<&mut Backend>, summary: QString);
         #[qsignal]
+        fn google_done(self: Pin<&mut Backend>, ok: bool, message: QString);
+        #[qsignal]
         fn account_tested(self: Pin<&mut Backend>, ok: bool, message: QString);
     }
 
@@ -102,6 +112,7 @@ use std::sync::{Mutex, MutexGuard, OnceLock};
 
 pub use qobject::kronoa_new_application;
 
+static GOOGLE_CANCEL: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 static CORE: OnceLock<Mutex<Core>> = OnceLock::new();
 
 #[derive(Default)]
@@ -337,6 +348,46 @@ impl qobject::Backend {
                 Err(e) => (false, e.to_string()),
             };
             let _ = thread.queue(move |mut obj: Pin<&mut qobject::Backend>| obj.as_mut().account_tested(ok, QString::from(&msg)));
+        });
+    }
+
+    fn google_configured(&self) -> bool {
+        kronoa_core::google::configured(&core().config.google)
+    }
+
+    fn google_cancel(&self) {
+        GOOGLE_CANCEL.store(true, std::sync::atomic::Ordering::SeqCst);
+    }
+
+    fn google_login(&self) {
+        let cfg = core().config.google.clone();
+        let thread = self.qt_thread();
+        let done = move |ok: bool, msg: String| {
+            let _ = thread.queue(move |mut obj: Pin<&mut qobject::Backend>| obj.as_mut().google_done(ok, QString::from(&msg)));
+        };
+        let (id, secret) = match kronoa_core::google::credentials(&cfg) {
+            Ok(c) => c,
+            Err(e) => return done(false, e.to_string()),
+        };
+        GOOGLE_CANCEL.store(false, std::sync::atomic::Ordering::SeqCst);
+        std::thread::spawn(move || {
+            let open = |url: &str| {
+                if std::env::var_os("KRONOA_NO_BROWSER").is_some() {
+                    eprintln!("kronoa: open {url}");
+                } else {
+                    let _ = std::process::Command::new("xdg-open").arg(url).spawn();
+                }
+            };
+            match kronoa_core::google::login(&id, &secret, &GOOGLE_CANCEL, &open) {
+                Ok(l) => {
+                    let r = core().add_google_account(&l.email, &l.refresh_token);
+                    match r {
+                        Ok(_) => done(true, l.email),
+                        Err(e) => done(false, e.to_string()),
+                    }
+                }
+                Err(e) => done(false, e.to_string()),
+            }
         });
     }
 
