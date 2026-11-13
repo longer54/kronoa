@@ -23,7 +23,8 @@ ICS subscriptions.
 
 - **Day, week and month views**, with a mini calendar, an "Upcoming" list and a "today at a glance" panel.
 - **Drag and resize.** Drag over an empty slot to create an event, drag a block to move it, drag
-  its bottom edge to change the length.
+  its bottom edge to change the length. A new event starts as a draft: Enter saves, Esc cancels.
+- **Editable date and time** in the event panel (moving the start keeps the duration).
 - **Command palette (Ctrl+K)** and **quick add** in English and Polish: type
   `meeting tomorrow 2pm 1h weekly` and the event is created.
 - **Undo (Ctrl+Z)** for create, move, edit and delete.

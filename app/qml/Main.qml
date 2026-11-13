@@ -49,6 +49,7 @@ ApplicationWindow {
     property date anchor: new Date()
     property int selId: -1
     property real selOcc: 0
+    property int draftCol: -1
     property var detail: null
     property bool sideOpen: true
     property real nowMs: Date.now()
@@ -97,6 +98,13 @@ ApplicationWindow {
         }
         if (prefs.timeFormat === "system") return Qt.formatTime(d, loc.timeFormat(Locale.ShortFormat))
         return d.getHours() + ":" + pad2(d.getMinutes())
+    }
+    function fmtHM(ms) { const d = new Date(ms); return pad2(d.getHours()) + ":" + pad2(d.getMinutes()) }
+    function parseHM(t) {
+        const m = /^\s*(\d{1,2})(?:[:.](\d{2}))?\s*$/.exec(t)
+        if (!m) return null
+        const h = parseInt(m[1]), mi = m[2] ? parseInt(m[2]) : 0
+        return (h > 23 || mi > 59) ? null : [h, mi]
     }
     function fmtHour(h) { return fmtT(new Date(2000, 0, 1, h, 0).getTime()) }
     function rangeText(o) { return o.allDay ? qsTr("all day") : fmtT(o.startMs) + "–" + fmtT(o.endMs) }
@@ -195,6 +203,7 @@ ApplicationWindow {
     }
 
     function select(id, occ) {
+        draftCol = -1
         selId = id
         selOcc = occ
         detail = id >= 0 ? parse(backend.detail_json(id, occ)) : null
@@ -217,7 +226,8 @@ ApplicationWindow {
         else anchor = addDays(anchor, 7 * n)
         refresh()
     }
-    function setView(v) { view = v; refresh() }
+    function setView(v) { draftCol = -1; view = v; refresh() }
+    signal autoDraft(int col, string title, bool commit)
     function scrollToHour(h) { if (grid.contentHeight > 0) grid.contentY = Math.max(0, h * hh - 4) }
     function createFromText(text) {
         const r = parse(backend.create_text(text))
@@ -632,22 +642,54 @@ ApplicationWindow {
                                             function snap(y) { return Math.round(Math.max(0, Math.min(24 * win.hh, y)) / (win.hh / 4)) * (win.hh / 4) }
                                             onPressed: (m) => { y0 = snap(m.y); y1 = y0 + win.hh / 2; dragging = true; root.forceActiveFocus() }
                                             onPositionChanged: (m) => { if (dragging) y1 = Math.max(y0 + win.hh / 4, snap(m.y)) }
+                                            readonly property bool pending: win.draftCol === dayCol.index
                                             onReleased: {
                                                 if (!dragging) return
                                                 dragging = false
+                                                win.draftCol = dayCol.index
+                                                draftIn.text = ""
+                                                draftIn.forceActiveFocus()
+                                            }
+                                            function commitDraft() {
                                                 const d = dayCol.modelData
                                                 const s = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, Math.round(y0 / win.hh * 60))
                                                 const e = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, Math.round(Math.max(y1, y0 + win.hh / 4) / win.hh * 60))
+                                                const title = draftIn.text.trim()
+                                                win.draftCol = -1
                                                 const r = win.parse(backend.create_range(s.getTime(), e.getTime(), false))
-                                                if (r && !r.error) { win.refresh(); win.select(r.id, r.start); win.toast(qsTr("Event created"), true); win.focusTitle() }
+                                                if (r && !r.error) {
+                                                    if (title !== "") backend.update_event(r.id, JSON.stringify({ title: title }))
+                                                    win.refresh(); win.select(r.id, r.start); win.toast(qsTr("Event created"), true)
+                                                    if (title === "") win.focusTitle(); else root.forceActiveFocus()
+                                                }
                                                 else win.toast(r ? r.error : "", false)
                                             }
                                             onCanceled: dragging = false
+                                            Connections {
+                                                target: win
+                                                function onAutoDraft(col, title, commit) {
+                                                    if (col !== dayCol.index) return
+                                                    if (!commit) { createMa.y0 = win.hh * 10; createMa.y1 = win.hh * 11; win.draftCol = col; draftIn.forceActiveFocus(); draftIn.text = title }
+                                                    else createMa.commitDraft()
+                                                }
+                                            }
                                             Rectangle {
-                                                visible: createMa.dragging
+                                                visible: createMa.dragging || createMa.pending
                                                 y: createMa.y0; height: Math.max(createMa.y1 - createMa.y0, win.hh / 4)
                                                 x: 3; width: parent.width - 7
                                                 radius: 6; color: Qt.rgba(Theme.sel.r, Theme.sel.g, Theme.sel.b, 0.18); border.color: Theme.sel; border.width: 2
+                                                TextInput {
+                                                    id: draftIn
+                                                    visible: createMa.pending
+                                                    x: 6; y: 3; width: parent.width - 12
+                                                    color: Theme.fg; font.pixelSize: 12; font.weight: Font.DemiBold
+                                                    selectionColor: Theme.sel; clip: true
+                                                    Keys.onReturnPressed: createMa.commitDraft()
+                                                    Keys.onEnterPressed: createMa.commitDraft()
+                                                    Keys.onEscapePressed: { win.draftCol = -1; root.forceActiveFocus() }
+                                                    onActiveFocusChanged: if (!activeFocus && createMa.pending && text.trim() === "") Qt.callLater(() => { if (!draftIn.activeFocus && createMa.pending) win.draftCol = -1 })
+                                                    Text { visible: !draftIn.text; width: parent.width; elide: Text.ElideRight; text: qsTr("Title · Enter saves, Esc cancels"); color: Theme.mut; font.pixelSize: 11 }
+                                                }
                                             }
                                         }
                                     }
@@ -910,11 +952,59 @@ ApplicationWindow {
                                     Text { visible: !titleIn.text && !titleIn.activeFocus; text: qsTr("Title"); color: Theme.mut; font: titleIn.font }
                                 }
                                 Text {
+                                    visible: !!win.detail && (win.detail.allDay || win.detail.readOnly)
                                     topPadding: 4; bottomPadding: 8
                                     width: parent.width
                                     text: win.detail ? (win.detail.allDay ? win.dowShort(new Date(win.detail.startMs).getDay()) + " " + new Date(win.detail.startMs).getDate() + " " + win.monthGen(new Date(win.detail.startMs).getMonth()) + " · " + qsTr("all day")
                                         : win.dowShort(new Date(win.detail.startMs).getDay()) + " " + new Date(win.detail.startMs).getDate() + " " + win.monthGen(new Date(win.detail.startMs).getMonth()) + " · " + win.fmtT(win.detail.startMs) + "–" + win.fmtT(win.detail.endMs) + " (" + qsTr("%1 min").arg(Math.round((win.detail.endMs - win.detail.startMs) / 60000)) + ")") : ""
                                     color: Theme.mut; font.pixelSize: 13; wrapMode: Text.Wrap
+                                }
+                                // editable date + time range (od–do)
+                                Row {
+                                    id: timeRow
+                                    visible: !!win.detail && !win.detail.allDay && !win.detail.readOnly
+                                    topPadding: 4; bottomPadding: 8; spacing: 4
+                                    function load() {
+                                        dateIn.text = win.detail ? Qt.formatDate(new Date(win.detail.startMs), "dd.MM.yyyy") : ""
+                                        startIn.text = win.detail ? win.fmtHM(win.detail.startMs) : ""
+                                        endIn.text = win.detail ? win.fmtHM(win.detail.endMs) : ""
+                                    }
+                                    Component.onCompleted: load()
+                                    Connections { target: win; function onDetailChanged() { timeRow.load() } }
+                                    function commit() {
+                                        if (!win.detail) return
+                                        const s0 = new Date(win.detail.startMs), len = win.detail.endMs - win.detail.startMs
+                                        const dm = /^\s*(\d{1,2})[.\/-](\d{1,2})(?:[.\/-](\d{2,4}))?\s*$/.exec(dateIn.text)
+                                        const sm = win.parseHM(startIn.text), em = win.parseHM(endIn.text)
+                                        if (!dm || !sm || !em) { win.toast(qsTr("Wrong date or time"), false); timeRow.load(); return }
+                                        let y = dm[3] ? parseInt(dm[3]) : s0.getFullYear(); if (y < 100) y += 2000
+                                        const ns = new Date(y, parseInt(dm[2]) - 1, parseInt(dm[1]), sm[0], sm[1])
+                                        let ne = new Date(y, parseInt(dm[2]) - 1, parseInt(dm[1]), em[0], em[1])
+                                        // start changed but end untouched -> keep duration
+                                        const endTouched = endIn.text.trim() !== win.fmtHM(win.detail.endMs)
+                                        if (!endTouched) ne = new Date(ns.getTime() + len)
+                                        else if (ne <= ns) ne = new Date(ne.getTime() + 86400000)
+                                        if (ns.getTime() === win.detail.startMs && ne.getTime() === win.detail.endMs) return
+                                        const e = backend.move_event(win.selId, win.detail.startMs, ns.getTime(), ne.getTime())
+                                        if (e) { win.toast(e, false); return }
+                                        win.anchor = ns; win.selOcc = ns.getTime(); win.refresh(); win.select(win.selId, ns.getTime())
+                                    }
+                                    Text { text: win.detail ? win.dowShort(new Date(win.detail.startMs).getDay()) : ""; color: Theme.mut; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter }
+                                    TextInput { id: dateIn; color: Theme.fg; font.pixelSize: 13; selectionColor: Theme.sel; selectByMouse: true; horizontalAlignment: TextInput.AlignHCenter; onEditingFinished: { timeRow.commit(); root.forceActiveFocus() }
+                                        Keys.onEscapePressed: { timeRow.load(); root.forceActiveFocus() }
+                                        Rectangle { anchors.fill: parent; anchors.margins: -3; z: -1; radius: 4; color: "transparent"; border.width: 1; border.color: parent.activeFocus ? Theme.acc : Theme.line }
+                                        width: 76; anchors.verticalCenter: parent.verticalCenter; }
+                                    Text { text: " "; font.pixelSize: 13 }
+                                    TextInput { id: startIn; color: Theme.fg; font.pixelSize: 13; selectionColor: Theme.sel; selectByMouse: true; horizontalAlignment: TextInput.AlignHCenter; onEditingFinished: { timeRow.commit(); root.forceActiveFocus() }
+                                        Keys.onEscapePressed: { timeRow.load(); root.forceActiveFocus() }
+                                        Rectangle { anchors.fill: parent; anchors.margins: -3; z: -1; radius: 4; color: "transparent"; border.width: 1; border.color: parent.activeFocus ? Theme.acc : Theme.line }
+                                        width: 42; anchors.verticalCenter: parent.verticalCenter; }
+                                    Text { text: "–"; color: Theme.mut; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter }
+                                    TextInput { id: endIn; color: Theme.fg; font.pixelSize: 13; selectionColor: Theme.sel; selectByMouse: true; horizontalAlignment: TextInput.AlignHCenter; onEditingFinished: { timeRow.commit(); root.forceActiveFocus() }
+                                        Keys.onEscapePressed: { timeRow.load(); root.forceActiveFocus() }
+                                        Rectangle { anchors.fill: parent; anchors.margins: -3; z: -1; radius: 4; color: "transparent"; border.width: 1; border.color: parent.activeFocus ? Theme.acc : Theme.line }
+                                        width: 42; anchors.verticalCenter: parent.verticalCenter; }
+                                    Text { text: win.detail ? " (" + qsTr("%1 min").arg(Math.round((win.detail.endMs - win.detail.startMs) / 60000)) + ")" : ""; color: Theme.mut; font.pixelSize: 13; anchors.verticalCenter: parent.verticalCenter }
                                 }
                                 // RSVP
                                 Row {
@@ -1207,25 +1297,27 @@ ApplicationWindow {
             const s = win.autoStep++
             if (s === 0) { Theme.name = "light"; win.scrollToHour(7); win.shot("week-light") }
             else if (s === 1) { const o = win.placed.find(p => p.o.title.indexOf("Przegl") === 0 || p.o.title.indexOf("Project") === 0); if (o) win.select(o.o.id, o.o.startMs); console.warn("AUTOTEST placed", win.placed.length) }
-            else if (s === 2) { win.shot("week-selected") }
-            else if (s === 3) { palette.open(); pin.text = win.isPl ? "Rozmowa o budżecie w poniedziałek 15:30 45 min co tydzień" : "Budget talk monday 3:30pm 45 min weekly" }
-            else if (s === 4) { win.shot("palette") }
-            else if (s === 5) { const ok = win.createFromText(pin.text); console.warn("AUTOTEST create", ok, win.placed.length) }
-            else if (s === 6) { win.shot("week-created") }
-            else if (s === 7) { win.setView("month") }
-            else if (s === 8) { win.shot("month") }
-            else if (s === 9) { win.anchor = new Date(); win.setView("day") }
-            else if (s === 10) { win.shot("day") }
-            else if (s === 11) { win.setView("week"); win.settingsOpen = true }
-            else if (s === 12) { win.shot("settings"); if (settingsLoader.item) { settingsLoader.item.tab = "accounts"; settingsLoader.item.adding = true } }
-            else if (s === 13) { win.shot("settings-accounts") }
-            else if (s === 14) { if (settingsLoader.item) { settingsLoader.item.tab = "general"; settingsLoader.item.adding = false }; Theme.name = "navy"; win.shot("settings-navy") }
-            else if (s === 15) { win.settingsOpen = false; Theme.name = "dark"; win.select(-1, 0); win.scrollToHour(Math.max(0, Math.min(13, new Date().getHours() - 9))) }
-            else if (s === 16) { win.shot("week-dark") }
-            else if (s === 17) { Theme.name = "navy"; win.scrollToHour(Math.max(0, Math.min(13, new Date().getHours() - 9))) }
-            else if (s === 18) { win.shot("week-navy") }
-            else if (s === 19) { win.doUndo(); console.warn("AUTOTEST undo", win.placed.length) }
-            else if (s === 20) { console.warn("AUTOTEST done"); Qt.quit() }
+            else if (s === 2) { win.shot("week-selected"); if (win.detail) { const b = win.fmtHM(win.detail.startMs) + "-" + win.fmtHM(win.detail.endMs); startIn.text = "9:15"; endIn.text = "11:45"; timeRow.commit(); console.warn("AUTOTEST timeedit", b, "->", win.detail ? win.fmtHM(win.detail.startMs) + "-" + win.fmtHM(win.detail.endMs) : "brak", timeRow.visible); win.shot("time-edited") } }
+            else if (s === 3) { win.autoDraft(3, "Szkic testowy", false); win.shot("draft-pending") }
+            else if (s === 4) { win.autoDraft(3, "", true); win.shot("draft-saved") }
+            else if (s === 5) { palette.open(); pin.text = win.isPl ? "Rozmowa o budżecie w poniedziałek 15:30 45 min co tydzień" : "Budget talk monday 3:30pm 45 min weekly" }
+            else if (s === 6) { win.shot("palette") }
+            else if (s === 7) { const ok = win.createFromText(pin.text); console.warn("AUTOTEST create", ok, win.placed.length) }
+            else if (s === 8) { win.shot("week-created") }
+            else if (s === 9) { win.setView("month") }
+            else if (s === 10) { win.shot("month") }
+            else if (s === 11) { win.anchor = new Date(); win.setView("day") }
+            else if (s === 12) { win.shot("day") }
+            else if (s === 13) { win.setView("week"); win.settingsOpen = true }
+            else if (s === 14) { win.shot("settings"); if (settingsLoader.item) { settingsLoader.item.tab = "accounts"; settingsLoader.item.adding = true } }
+            else if (s === 15) { win.shot("settings-accounts") }
+            else if (s === 16) { if (settingsLoader.item) { settingsLoader.item.tab = "general"; settingsLoader.item.adding = false }; Theme.name = "navy"; win.shot("settings-navy") }
+            else if (s === 17) { win.settingsOpen = false; Theme.name = "dark"; win.select(-1, 0); win.scrollToHour(Math.max(0, Math.min(13, new Date().getHours() - 9))) }
+            else if (s === 18) { win.shot("week-dark") }
+            else if (s === 19) { Theme.name = "navy"; win.scrollToHour(Math.max(0, Math.min(13, new Date().getHours() - 9))) }
+            else if (s === 20) { win.shot("week-navy") }
+            else if (s === 21) { win.doUndo(); console.warn("AUTOTEST undo", win.placed.length) }
+            else if (s === 22) { console.warn("AUTOTEST done"); Qt.quit() }
         }
     }
 }

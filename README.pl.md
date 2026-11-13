@@ -23,7 +23,8 @@ CalDAV i subskrypcjami ICS.
 
 - **Widoki dnia, tygodnia i miesiąca**, z mini-kalendarzem, listą „Nadchodzące” i panelem „dzisiaj w skrócie”.
 - **Przeciąganie i zmiana długości.** Przeciągnij po pustym polu, by dodać wydarzenie; przeciągnij
-  blok, by je przenieść; dolna krawędź zmienia długość.
+  blok, by je przenieść; dolna krawędź zmienia długość. Nowe wydarzenie to szkic: Enter zapisuje, Esc anuluje.
+- **Edycja daty i godzin** w panelu wydarzenia (zmiana początku zachowuje długość).
 - **Paleta poleceń (Ctrl+K)** i **szybkie dodawanie** po polsku i angielsku:
   wpisz `spotkanie jutro 14:00 1h co tydzień`, a wydarzenie powstanie.
 - **Cofanie (Ctrl+Z)** dodania, przeniesienia, edycji i usunięcia.

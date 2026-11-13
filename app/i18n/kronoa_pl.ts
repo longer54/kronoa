@@ -4,229 +4,240 @@
 <context>
     <name>Main</name>
     <message>
-        <location filename="../qml/Main.qml" line="102"/>
-        <location filename="../qml/Main.qml" line="557"/>
-        <location filename="../qml/Main.qml" line="915"/>
-        <location filename="../qml/Main.qml" line="1188"/>
+        <location filename="../qml/Main.qml" line="691"/>
+        <source>Title · Enter saves, Esc cancels</source>
+        <translation>Nazwa · Enter zapisuje, Esc anuluje</translation>
+    </message>
+    <message>
+        <location filename="../qml/Main.qml" line="979"/>
+        <source>Wrong date or time</source>
+        <translation>Zła data lub godzina (np. 14.11.2026, 9:00–10:30)</translation>
+    </message>
+    <message>
+        <location filename="../qml/Main.qml" line="110"/>
+        <location filename="../qml/Main.qml" line="567"/>
+        <location filename="../qml/Main.qml" line="958"/>
+        <location filename="../qml/Main.qml" line="1278"/>
         <source>all day</source>
         <translation>cały dzień</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="113"/>
+        <location filename="../qml/Main.qml" line="121"/>
         <source>no</source>
         <translation>nie</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="113"/>
+        <location filename="../qml/Main.qml" line="121"/>
         <source>daily</source>
         <translation>codziennie</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="113"/>
+        <location filename="../qml/Main.qml" line="121"/>
         <source>on weekdays</source>
         <translation>w dni robocze</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="113"/>
+        <location filename="../qml/Main.qml" line="121"/>
         <source>weekly</source>
         <translation>co tydzień</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="113"/>
+        <location filename="../qml/Main.qml" line="121"/>
         <source>monthly</source>
         <translation>co miesiąc</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="113"/>
+        <location filename="../qml/Main.qml" line="121"/>
         <source>yearly</source>
         <translation>co rok</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="224"/>
+        <location filename="../qml/Main.qml" line="234"/>
         <source>Could not add the event</source>
         <translation>Nie udało się dodać wydarzenia</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="229"/>
+        <location filename="../qml/Main.qml" line="239"/>
         <source>Added “%1”</source>
         <translation>Dodano „%1”</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="263"/>
+        <location filename="../qml/Main.qml" line="273"/>
         <source>Open Kronoa</source>
         <translation>Otwórz Kronoa</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="264"/>
+        <location filename="../qml/Main.qml" line="274"/>
         <source>Sync now</source>
         <translation>Synchronizuj teraz</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="265"/>
+        <location filename="../qml/Main.qml" line="275"/>
         <source>Settings…</source>
         <translation>Ustawienia…</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="267"/>
+        <location filename="../qml/Main.qml" line="277"/>
         <source>Quit</source>
         <translation>Zakończ</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="316"/>
+        <location filename="../qml/Main.qml" line="326"/>
         <source>minimize</source>
         <translation>minimalizuj</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="316"/>
+        <location filename="../qml/Main.qml" line="326"/>
         <source>maximize</source>
         <translation>maksymalizuj</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="316"/>
+        <location filename="../qml/Main.qml" line="326"/>
         <source>close</source>
         <translation>zamknij</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="412"/>
+        <location filename="../qml/Main.qml" line="422"/>
         <source>Upcoming</source>
         <translation>Nadchodzące</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="426"/>
-        <location filename="../qml/Main.qml" line="694"/>
-        <location filename="../qml/Main.qml" line="878"/>
+        <location filename="../qml/Main.qml" line="436"/>
+        <location filename="../qml/Main.qml" line="736"/>
+        <location filename="../qml/Main.qml" line="920"/>
         <source>(untitled)</source>
         <translation>(bez tytułu)</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="427"/>
+        <location filename="../qml/Main.qml" line="437"/>
         <source>today</source>
         <translation>dziś</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="434"/>
+        <location filename="../qml/Main.qml" line="444"/>
         <source>Nothing more today</source>
         <translation>Dziś nic więcej</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="435"/>
+        <location filename="../qml/Main.qml" line="445"/>
         <source>Calendars</source>
         <translation>Kalendarze</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="454"/>
-        <location filename="../qml/Main.qml" line="1110"/>
+        <location filename="../qml/Main.qml" line="464"/>
+        <location filename="../qml/Main.qml" line="1200"/>
         <source>Settings</source>
         <translation>Ustawienia</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="478"/>
+        <location filename="../qml/Main.qml" line="488"/>
         <source>Today</source>
         <translation>Dziś</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="491"/>
+        <location filename="../qml/Main.qml" line="501"/>
         <source>Add… e.g. “meeting tomorrow 2pm 1h”</source>
         <translation>Dodaj… np. „spotkanie jutro 14:00 1h”</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="505"/>
+        <location filename="../qml/Main.qml" line="515"/>
         <source>Day</source>
         <translation>Dzień</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="505"/>
+        <location filename="../qml/Main.qml" line="515"/>
         <source>Week</source>
         <translation>Tydzień</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="505"/>
+        <location filename="../qml/Main.qml" line="515"/>
         <source>Month</source>
         <translation>Miesiąc</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="642"/>
+        <location filename="../qml/Main.qml" line="662"/>
         <source>Event created</source>
         <translation>Utworzono wydarzenie</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="738"/>
+        <location filename="../qml/Main.qml" line="780"/>
         <source>“%1” → %2 %3</source>
         <translation>„%1” → %2 %3</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="761"/>
+        <location filename="../qml/Main.qml" line="803"/>
         <source>Duration changed</source>
         <translation>Zmieniono czas trwania</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="839"/>
+        <location filename="../qml/Main.qml" line="881"/>
         <source>+%1 more</source>
         <translation>+%1 więcej</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="869"/>
+        <location filename="../qml/Main.qml" line="911"/>
         <source>Next</source>
         <translation>Następne</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="872"/>
+        <location filename="../qml/Main.qml" line="914"/>
         <source>Nothing coming up</source>
         <translation>Nic w planie</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="880"/>
-        <location filename="../qml/Main.qml" line="935"/>
+        <location filename="../qml/Main.qml" line="922"/>
+        <location filename="../qml/Main.qml" line="1025"/>
         <source>Join the meeting</source>
         <translation>Dołącz do spotkania</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="882"/>
+        <location filename="../qml/Main.qml" line="924"/>
         <source>Today — the day at a glance</source>
         <translation>Dziś — dzień w skrócie</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="910"/>
+        <location filename="../qml/Main.qml" line="952"/>
         <source>Title</source>
         <translation>Tytuł</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="916"/>
+        <location filename="../qml/Main.qml" line="959"/>
+        <location filename="../qml/Main.qml" line="1007"/>
         <source>%1 min</source>
         <translation>%1 min</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="924"/>
+        <location filename="../qml/Main.qml" line="1014"/>
         <source>Yes</source>
         <translation>Tak</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="924"/>
+        <location filename="../qml/Main.qml" line="1014"/>
         <source>Maybe</source>
         <translation>Może</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="924"/>
+        <location filename="../qml/Main.qml" line="1014"/>
         <source>No</source>
         <translation>Nie</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="941"/>
+        <location filename="../qml/Main.qml" line="1031"/>
         <source>Calendar</source>
         <translation>Kalendarz</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="960"/>
+        <location filename="../qml/Main.qml" line="1050"/>
         <source>Location</source>
         <translation>Miejsce</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="978"/>
+        <location filename="../qml/Main.qml" line="1068"/>
         <source>Attendees</source>
         <translation>Uczestnicy</translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/Main.qml" line="979"/>
+        <location filename="../qml/Main.qml" line="1069"/>
         <source>%n people</source>
         <translation>
             <numerusform>%n osoba</numerusform>
@@ -235,99 +246,99 @@
         </translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="985"/>
+        <location filename="../qml/Main.qml" line="1075"/>
         <source>Reminder</source>
         <translation>Przypomnienie</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="988"/>
-        <location filename="../qml/Main.qml" line="996"/>
+        <location filename="../qml/Main.qml" line="1078"/>
+        <location filename="../qml/Main.qml" line="1086"/>
         <source>%1 min before</source>
         <translation>%1 min wcześniej</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="988"/>
-        <location filename="../qml/Main.qml" line="996"/>
+        <location filename="../qml/Main.qml" line="1078"/>
+        <location filename="../qml/Main.qml" line="1086"/>
         <source>none</source>
         <translation>brak</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="996"/>
+        <location filename="../qml/Main.qml" line="1086"/>
         <source>at the start</source>
         <translation>na początku</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="996"/>
+        <location filename="../qml/Main.qml" line="1086"/>
         <source>1 day before</source>
         <translation>1 dzień wcześniej</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1004"/>
+        <location filename="../qml/Main.qml" line="1094"/>
         <source>Repeat</source>
         <translation>Powtarzanie</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1017"/>
+        <location filename="../qml/Main.qml" line="1107"/>
         <source>Duplicate</source>
         <translation>Duplikuj</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1017"/>
+        <location filename="../qml/Main.qml" line="1107"/>
         <source>Duplicated</source>
         <translation>Zduplikowano</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1018"/>
+        <location filename="../qml/Main.qml" line="1108"/>
         <source>Delete</source>
         <translation>Usuń</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1019"/>
+        <location filename="../qml/Main.qml" line="1109"/>
         <source>Close</source>
         <translation>Zamknij</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1038"/>
+        <location filename="../qml/Main.qml" line="1128"/>
         <source>Drag over an empty slot = new · drag a block = move · bottom edge = length · Ctrl+K · T today · D/W/M view · Del delete</source>
         <translation>Przeciągnij po pustym polu = nowe · przeciągnij blok = przenieś · dolna krawędź = długość · Ctrl+K · T dziś · D/W/M widok · Del usuń</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1054"/>
+        <location filename="../qml/Main.qml" line="1144"/>
         <source>Undo</source>
         <translation>Cofnij</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1083"/>
+        <location filename="../qml/Main.qml" line="1173"/>
         <source>Type an event or a command…</source>
         <translation>Wpisz wydarzenie lub polecenie…</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1094"/>
+        <location filename="../qml/Main.qml" line="1184"/>
         <source>e.g. “Project review on Friday 10:30 45 min weekly”</source>
         <translation>np. „Przegląd projektu w piątek 10:30 45 min co tydzień”</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1106"/>
+        <location filename="../qml/Main.qml" line="1196"/>
         <source>Create event</source>
         <translation>Utwórz wydarzenie</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1107"/>
+        <location filename="../qml/Main.qml" line="1197"/>
         <source>Show month</source>
         <translation>Pokaż miesiąc</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1108"/>
+        <location filename="../qml/Main.qml" line="1198"/>
         <source>Toggle side panel</source>
         <translation>Przełącz panel boczny</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1109"/>
+        <location filename="../qml/Main.qml" line="1199"/>
         <source>Go to today</source>
         <translation>Przejdź do dziś</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="1181"/>
+        <location filename="../qml/Main.qml" line="1271"/>
         <source>Deleted “%1”</source>
         <translation>Usunięto „%1”</translation>
     </message>
