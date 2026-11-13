@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8"><title>Kronoa — makieta B · Granat i złoto, zwarty</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--hh:46px}
+body.light{--bg:#ffffff;--bg2:#f7f7f5;--line:#ececea;--fg:#37352f;--mut:#787774;--acc:#e16259;--sel:#2383e2;--panel:#fbfbfa;--chip:#efefed}
+body.dark{--bg:#151728;--bg2:#1b1e33;--line:#272a44;--fg:#e9e7df;--mut:#a9abc4;--acc:#C9A84C;--sel:#C9A84C;--panel:#181a2e;--chip:#23263f}
+body{font:13px/1.4 Inter,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--fg);height:100vh;display:flex;flex-direction:column;overflow:hidden;-webkit-font-smoothing:antialiased;user-select:none}
+.top{height:38px;display:flex;align-items:center;gap:8px;padding:0 10px;border-bottom:1px solid var(--line);background:var(--bg)}
+.top .logo{font-weight:700;letter-spacing:.3px;display:flex;align-items:center;gap:6px}
+.top .logo i{width:14px;height:14px;border-radius:4px;background:var(--acc);display:inline-block}
+.drag{flex:1;height:100%}
+.wbtn{width:12px;height:12px;border-radius:50%;background:var(--chip);margin-left:6px;cursor:pointer}
+.wbtn:hover{background:var(--acc)}
+.main{flex:1;display:flex;min-height:0}
+/* lewy */
+.side{width:210px;border-right:1px solid var(--line);background:var(--panel);padding:12px 10px;overflow:auto;transition:width .2s}
+.side.hidden{width:0;padding:0;overflow:hidden;border:0}
+.mini h4{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}
+.mini table{width:100%;border-collapse:collapse;font-size:11px;text-align:center}
+.mini td{padding:3px 0;color:var(--fg);border-radius:4px;cursor:pointer}
+.mini td.o{color:var(--mut)} .mini th{color:var(--mut);font-weight:500;padding-bottom:3px}
+.mini td.t{background:var(--acc);color:#fff;font-weight:600}
+.mini td.w{background:var(--chip)}
+.sec{margin-top:16px;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.cal{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:5px;cursor:pointer}
+.cal:hover{background:var(--chip)}
+.cal b{width:12px;height:12px;border-radius:3px;border:2px solid var(--c)}
+.cal.on b{background:var(--c)}
+.up{padding:6px;border-radius:6px;margin-bottom:4px;border-left:3px solid var(--c);background:var(--bg)}
+.up small{color:var(--mut);display:block}
+/* środek */
+.center{flex:1;display:flex;flex-direction:column;min-width:0}
+.head{height:48px;display:flex;align-items:center;gap:10px;padding:0 14px}
+.head h2{font-size:17px;font-weight:500;white-space:nowrap}
+.btn{border:1px solid var(--line);background:var(--bg);color:var(--fg);padding:4px 10px;border-radius:6px;cursor:pointer;font:inherit}
+.btn:hover{background:var(--chip)}
+.seg{flex:none;display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-left:auto}
+.seg button{border:0;background:none;color:var(--fg);padding:5px 12px;cursor:pointer;font:inherit}
+.seg button.on{background:var(--chip);font-weight:600}
+.qa{flex:1 1 200px;max-width:380px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid var(--line);border-radius:7px;padding:5px 10px;color:var(--mut);cursor:text;background:var(--bg2)}
+.days,.allday,.scroll{overflow-y:scroll;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.days,.allday{overflow:hidden!important;scrollbar-gutter:stable}.scroll{scrollbar-gutter:stable}
+.days{display:flex;padding-left:56px;border-bottom:1px solid var(--line)}
+.days div{flex:1;text-align:center;padding:4px 0 6px;color:var(--mut);font-size:11px}
+.days div b{display:block;font-size:19px;font-weight:500;color:var(--fg);width:32px;height:32px;line-height:32px;margin:2px auto 0}
+.days div.t b{background:var(--acc);color:#fff;border-radius:50%}
+.allday{display:flex;padding-left:56px;border-bottom:1px solid var(--line);min-height:24px}
+.allday div{flex:1;border-left:1px solid var(--line);padding:2px}
+.allday span{display:block;font-size:11px;padding:2px 6px;border-radius:4px;background:color-mix(in srgb,var(--c) 25%,var(--bg));border-left:3px solid var(--c);color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scroll{flex:1;overflow:auto;position:relative}
+.grid{display:flex;position:relative;padding:8px 0}
+.hours{width:56px;flex:none}
+.hours div{height:var(--hh);font-size:10px;color:var(--mut);text-align:right;padding-right:8px;transform:translateY(-6px)}
+.hours div:first-child{visibility:hidden}
+.col{flex:1;position:relative;border-left:1px solid var(--line);background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hh) - 1px),var(--line) calc(var(--hh) - 1px),var(--line) var(--hh))}
+.col.we{background-color:var(--bg2)}
+.ev{position:absolute;left:3px;right:4px;border-radius:6px;padding:3px 6px;font-size:11.5px;overflow:hidden;cursor:grab;color:var(--fg);background:color-mix(in srgb,var(--c) 22%,var(--bg));border-left:3px solid var(--c);transition:box-shadow .1s}
+.ev small{display:block;color:color-mix(in srgb,var(--fg) 70%,transparent);font-size:10.5px}
+.ev{white-space:nowrap;text-overflow:ellipsis}.ev.short small{display:inline;margin-left:6px}
+.ev:hover{box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.ev.sel{outline:2px solid var(--sel);outline-offset:1px}
+.ev.pending{background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 12%,var(--bg)) 0 6px,var(--bg) 6px 12px)}
+.ev.draft{border-left-style:dashed;opacity:.85}
+.ev .rs{position:absolute;left:0;right:0;bottom:0;height:6px;cursor:ns-resize}
+.now{position:absolute;left:0;right:0;height:2px;background:var(--acc);z-index:5}
+.now:before{content:"";position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--acc)}
+/* prawy */
+.right{width:280px;border-left:1px solid var(--line);background:var(--panel);padding:16px;overflow:auto}
+.right h3{font-size:16px;margin-bottom:4px}
+.right .row{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);color:var(--mut)}
+.right .row span{color:var(--fg)}
+.join{display:block;width:100%;margin:10px 0;padding:8px;border:0;border-radius:7px;background:var(--acc);color:#fff;font-weight:600;cursor:pointer;font:inherit}
+.rsvp{display:flex;gap:6px;margin:8px 0}
+.rsvp button{flex:1}
+.rsvp button.on{background:var(--sel);color:#fff;border-color:var(--sel)}
+input.title{width:100%;font:600 16px inherit;border:0;background:none;color:var(--fg);outline:none;padding:2px 0;font-family:inherit}
+/* paleta */
+.pal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-start;justify-content:center;padding-top:14vh;z-index:50}
+.pal.on{display:flex}
+.box{width:560px;background:var(--bg);border:1px solid var(--line);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden}
+.box input{width:100%;border:0;padding:16px 18px;font:15px inherit;font-family:inherit;background:none;color:var(--fg);outline:none;border-bottom:1px solid var(--line)}
+.prev{padding:12px 18px;display:flex;flex-wrap:wrap;gap:6px;min-height:46px}
+.prev span{background:var(--chip);padding:3px 9px;border-radius:12px;font-size:12px}
+.prev span b{color:var(--acc)}
+.cmds div{padding:8px 18px;display:flex;justify-content:space-between;cursor:pointer}
+.cmds div:hover,.cmds div.on{background:var(--chip)}
+.cmds kbd{color:var(--mut);font:11px monospace}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;display:none;gap:14px;z-index:60}
+.toast.on{display:flex} .toast u{cursor:pointer;color:var(--acc)}
+.hint{height:24px;line-height:24px;border-top:1px solid var(--line);padding:0 12px;color:var(--mut);font-size:11px;white-space:nowrap;overflow:hidden;background:var(--panel)}
+.days div,.allday div,.col{flex:1 1 0!important;min-width:0}
+.qa{display:flex;align-items:center;gap:8px}.qa span{margin-left:auto;flex:none}.qa em{font-style:normal;overflow:hidden;text-overflow:ellipsis}
+.ev.past{opacity:.55}
+.month{display:none;flex:1;grid-template-columns:repeat(7,1fr);grid-auto-rows:1fr;border-top:1px solid var(--line)}
+.month div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 6px;font-size:11px;overflow:hidden}
+.month div i{display:block;font-style:normal;color:var(--mut);margin-bottom:2px}
+.month div span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-left:2px solid var(--c);padding-left:4px;margin-bottom:1px}
+</style></head>
+<body class="dark">
+<div class="top"><span class="logo"><i></i>Kronoa</span><span style="color:var(--mut);margin-left:8px">B · Granat i złoto, zwarty</span><div class="drag"></div>
+<span class="wbtn" title="minimalizuj"></span><span class="wbtn" title="maksymalizuj"></span><span class="wbtn" title="zamknij"></span></div>
+<div class="main">
+ <aside class="side" id="side">
+  <div class="mini"><h4><span>Listopad 2026</span><span style="color:var(--mut)">‹ ›</span></h4><table id="mini"></table></div>
+  <div class="sec">Nadchodzące</div><div id="upc"></div>
+  <div class="sec">Kalendarze</div><div id="cals"></div>
+ </aside>
+ <section class="center">
+  <div class="head"><button class="btn" onclick="toggleSide()" title="panel (Ctrl+\)">☰</button><h2 id="ttl">9–15 listopada 2026</h2>
+   <button class="btn" onclick="toast('Dziś')">Dziś</button><button class="btn">‹</button><button class="btn">›</button>
+   <div class="qa" onclick="openPal()"><em>＋ Dodaj… np. „spotkanie jutro 14:00 1h”</em><span>Ctrl K</span></div>
+   <div class="seg"><button onclick="view('day',this)">Dzień</button><button class="on" onclick="view('week',this)">Tydzień</button><button onclick="view('month',this)">Miesiąc</button></div>
+  </div>
+  <div id="weekv" style="display:flex;flex-direction:column;flex:1;min-height:0">
+   <div class="days" id="days"></div><div class="allday" id="allday"></div>
+   <div class="scroll" id="scroll"><div class="grid" id="grid"><div class="hours" id="hours"></div></div></div>
+  </div>
+  <div class="month" id="monthv"></div>
+ </section>
+ <aside class="right" id="right"></aside>
+</div>
+<div class="hint">Przeciągnij po pustym polu = nowe · przeciągnij blok = przenieś · dolna krawędź = długość · Ctrl+K · T dziś · D/W/M widok · Del usuń</div>
+<div class="pal" id="pal" onclick="if(event.target===this)closePal()"><div class="box">
+ <input id="pin" placeholder="Wpisz wydarzenie albo komendę…" oninput="parse()" onkeydown="palKey(event)">
+ <div class="prev" id="prev"><span style="color:var(--mut);background:none">np. „Przegląd projektu w piątek 10:30 45 min co tydzień”</span></div>
+ <div class="cmds"><div class="on">Utwórz wydarzenie <kbd>Enter</kbd></div><div onclick="view('month');closePal()">Pokaż miesiąc <kbd>M</kbd></div><div onclick="toggleSide();closePal()">Przełącz panel <kbd>Ctrl \</kbd></div><div onclick="closePal();toast('Przejdź do daty…')">Idź do daty <kbd>G</kbd></div></div>
+</div></div>
+<div class="toast" id="toast"><span id="tmsg"></span><u onclick="undo()">Cofnij</u></div>
+
+<script>
+const H0=7,H1=21,HH=46;
+const C={praca:'#C9A84C',dom:'#5fb3a1',sport:'#e07a6a',inne:'#8d8fd6',swieta:'#6fa8dc'};
+const calNames={praca:'Praca',dom:'Dom',sport:'Sport',inne:'Projekty',swieta:'Święta'};
+let vis=Object.fromEntries(Object.keys(C).map(k=>[k,true]));
+const dayN=['Pn','Wt','Śr','Cz','Pt','So','Nd'],dates=[9,10,11,12,13,14,15],TODAY=4;
+let id=1,E=[
+ {d:0,s:9,e:10,t:'Poranne planowanie',c:'praca'},{d:0,s:12,e:13.5,t:'Spotkanie z zespołem',c:'praca',loc:'Meet',ppl:4},
+ {d:1,s:7.5,e:8.5,t:'Siłownia',c:'sport'},{d:1,s:10,e:11,t:'Rozmowa z dostawcą',c:'praca',pending:1},
+ {d:2,s:14,e:16,t:'Warsztat produktowy',c:'inne',loc:'Sala B',ppl:6},{d:3,s:9,e:9.5,t:'Stand-up',c:'praca'},
+ {d:3,s:17,e:18,t:'Basen',c:'sport'},{d:4,s:8,e:9,t:'Badania',c:'dom'},{d:4,s:11,e:12.5,t:'Przegląd projektu',c:'inne',loc:'Meet',ppl:3},
+ {d:4,s:15,e:15.75,t:'Telefon do klienta',c:'praca'},{d:5,s:10,e:12,t:'Rowerem nad zalew',c:'sport'},{d:6,s:13,e:15,t:'Obiad rodzinny',c:'dom'}
+].map(x=>({...x,id:id++}));
+const AD=[{d:2,t:'Narodowe Święto Niepodległości',c:'swieta'}];
+let sel=null,last=null;
+const $=s=>document.querySelector(s);
+const fmt=h=>{const m=Math.round((h%1)*60);return Math.floor(h)+':'+String(m).padStart(2,'0')};
+function build(){
+ $('#days').innerHTML=dayN.map((n,i)=>`<div class="${i==TODAY?'t':''}">${n}<b>${dates[i]}</b></div>`).join('');
+ $('#allday').innerHTML=dayN.map((n,i)=>`<div>${AD.filter(a=>a.d==i&&vis[a.c]).map(a=>`<span style="--c:${C[a.c]}">${a.t}</span>`).join('')}</div>`).join('');
+ $('#hours').innerHTML=Array.from({length:H1-H0},(_,i)=>`<div>${H0+i}:00</div>`).join('');
+ document.querySelectorAll('.col').forEach(c=>c.remove());
+ dayN.forEach((n,i)=>{const col=document.createElement('div');col.className='col'+(i>4?' we':'');col.dataset.d=i;col.style.height=(H1-H0)*HH+'px';
+  col.onmousedown=e=>{if(e.target!==col)return;startCreate(e,col)};$('#grid').appendChild(col)});
+ const now=document.createElement('div');now.className='now';now.style.top=((17.4-H0)*HH)+'px';document.querySelectorAll('.col')[TODAY].appendChild(now);
+ render();
+ // mini
+ let h='<tr>'+dayN.map(d=>`<th>${d[0]}</th>`).join('')+'</tr>',day=-6;
+ for(let r=0;r<6;r++){h+='<tr>';for(let c=0;c<7;c++){day++;const o=day<1||day>30,v=o?(day<1?31+day:day-30):day;h+=`<td class="${o?'o':''}${!o&&day==13?' t':''}${!o&&day>=9&&day<=15&&day!=13?' w':''}">${v}</td>`}h+='</tr>'}
+ $('#mini').innerHTML=h;
+ $('#cals').innerHTML=Object.keys(C).map(k=>`<div class="cal ${vis[k]?'on':''}" style="--c:${C[k]}" onclick="vis.${k}=!vis.${k};build()"><b></b>${calNames[k]}</div>`).join('');
+ month();
+}
+function render(){
+ document.querySelectorAll('.ev').forEach(x=>x.remove());
+ for(const ev of E){if(!vis[ev.c])continue;const col=document.querySelector(`.col[data-d="${ev.d}"]`);
+  const el=document.createElement('div');el.className='ev'+(ev.e-ev.s<=0.75?' short':'')+(ev.id===sel?' sel':'')+(ev.pending?' pending':'')+((ev.d<TODAY||(ev.d==TODAY&&ev.e<17.4))?' past':'')+(ev.draft?' draft':'');
+  el.style.cssText=`--c:${C[ev.c]};top:${(ev.s-H0)*HH+1}px;height:${(ev.e-ev.s)*HH-3}px`;
+  el.innerHTML=`${ev.t||'<i style="color:var(--mut)">(bez tytułu)</i>'}<small>${fmt(ev.s)}–${fmt(ev.e)}${ev.loc?' · '+ev.loc:''}</small><div class="rs"></div>`;
+  el.onmousedown=e=>{e.stopPropagation();select(ev.id);if(e.target.classList.contains('rs'))drag(e,ev,'resize');else drag(e,ev,'move')};
+  col.appendChild(el)}
+ upcoming();panel();
+}
+function upcoming(){$('#upc').innerHTML=E.filter(e=>((e.d==TODAY&&e.e>17.4)||e.d==TODAY+1)&&vis[e.c]).sort((a,b)=>a.s-b.s).map(e=>`<div class="up" style="--c:${C[e.c]}">${e.t}<small>${e.d==TODAY?'dziś':dayN[e.d]} · ${fmt(e.s)}–${fmt(e.e)}</small></div>`).join('')||'<small style="color:var(--mut)">Nic więcej dziś</small>'}
+function panel(){const ev=E.find(x=>x.id===sel),r=$('#right');
+ if(!ev){const nx=E.filter(e=>e.d==TODAY&&e.e>17.4).sort((a,b)=>a.s-b.s)[0]||E.find(e=>e.d==TODAY+1);
+  r.innerHTML=`<div class="sec" style="margin-top:0">Następne</div><h3>${nx.t}</h3><div style="color:var(--mut)">${dayN[nx.d]} ${dates[nx.d]} lis · ${fmt(nx.s)}–${fmt(nx.e)}</div>${nx.loc=='Meet'?'<button class="join">Dołącz do spotkania</button>':''}
+  <div class="sec">Dziś, piątek 13 — przebieg dnia</div>${E.filter(e=>e.d==TODAY).sort((a,b)=>a.s-b.s).map(e=>`<div class="row"><b style="width:8px;height:8px;border-radius:2px;background:${C[e.c]}"></b><span>${e.t}</span><span style="margin-left:auto;color:var(--mut)">${fmt(e.s)}</span></div>`).join('')}`;return}
+ r.innerHTML=`<input class="title" value="${ev.t||''}" placeholder="Tytuł" oninput="E.find(x=>x.id===${ev.id}).t=this.value;render();this.focus()" onkeydown="if(event.key=='Enter'){commit(${ev.id})}" id="tin">
+ <div style="color:var(--mut);margin-bottom:6px">${dayN[ev.d]} ${dates[ev.d]} listopada · ${fmt(ev.s)}–${fmt(ev.e)} (${Math.round((ev.e-ev.s)*60)} min)</div>
+ ${ev.ppl?`<div class="rsvp"><button class="btn on">Tak</button><button class="btn">Może</button><button class="btn">Nie</button></div>`:''}
+ ${ev.loc=='Meet'?'<button class="join">Dołącz · Google Meet</button>':''}
+ <div class="row">Kalendarz <span style="margin-left:auto"><b style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${C[ev.c]}"></b> ${calNames[ev.c]}</span></div>
+ <div class="row">Miejsce <span style="margin-left:auto">${ev.loc||'—'}</span></div>
+ <div class="row">Uczestnicy <span style="margin-left:auto">${ev.ppl?ev.ppl+' osoby':'—'}</span></div>
+ <div class="row">Przypomnienie <span style="margin-left:auto">10 min przed</span></div>
+ <div class="row">Powtarzanie <span style="margin-left:auto">${ev.rep||'nie'}</span></div>
+ <div style="margin-top:14px;display:flex;gap:6px"><button class="btn" onclick="dup(${ev.id})">Duplikuj</button><button class="btn" onclick="del(${ev.id})">Usuń</button></div>`;
+ if(ev.draft)setTimeout(()=>$('#tin')&&$('#tin').focus(),0)}
+function select(i){sel=i;render()}
+function commit(i){const ev=E.find(x=>x.id===i);ev.draft=0;if(!ev.t)ev.t='Nowe wydarzenie';sel=null;render();toast('Zapisano „'+ev.t+'”')}
+function snap(y){return Math.round(y/(HH/4))/4}
+function startCreate(e,col){const r=col.getBoundingClientRect(),s=H0+snap(e.clientY-r.top);
+ const ev={id:id++,d:+col.dataset.d,s,e:s+.5,t:'',c:'praca',draft:1};E.push(ev);sel=ev.id;render();
+ const mv=m=>{ev.e=Math.max(ev.s+.25,H0+snap(m.clientY-r.top));render()};
+ const up=()=>{removeEventListener('mousemove',mv);removeEventListener('mouseup',up);panel()};addEventListener('mousemove',mv);addEventListener('mouseup',up)}
+function drag(e,ev,mode){const y0=e.clientY,s0=ev.s,e0=ev.e,d0=ev.d;const cols=[...document.querySelectorAll('.col')];
+ const mv=m=>{const dy=snap(m.clientY-y0);
+  if(mode=='resize'){ev.e=Math.max(ev.s+.25,e0+dy)}else{const len=e0-s0;ev.s=Math.min(H1-len,Math.max(H0,s0+dy));ev.e=ev.s+len;
+   const c=cols.findIndex(c=>{const r=c.getBoundingClientRect();return m.clientX>=r.left&&m.clientX<r.right});if(c>=0)ev.d=c}
+  render()};
+ const up=()=>{removeEventListener('mousemove',mv);removeEventListener('mouseup',up);if(ev.s!=s0||ev.e!=e0||ev.d!=d0){last={id:ev.id,s:s0,e:e0,d:d0};toast(`„${ev.t}” → ${dayN[ev.d]} ${fmt(ev.s)}`)}};
+ addEventListener('mousemove',mv);addEventListener('mouseup',up)}
+function del(i){const ev=E.find(x=>x.id===i);last={restore:{...ev}};E=E.filter(x=>x.id!==i);sel=null;render();toast('Usunięto „'+ev.t+'”')}
+function dup(i){const ev=E.find(x=>x.id===i);const n={...ev,id:id++,d:Math.min(6,ev.d+1)};E.push(n);sel=n.id;render();toast('Zduplikowano na '+dayN[n.d])}
+function undo(){if(!last)return;if(last.restore)E.push(last.restore);else Object.assign(E.find(x=>x.id===last.id),last);last=null;render();$('#toast').classList.remove('on')}
+let tt;function toast(m){$('#tmsg').textContent=m;$('#toast').classList.add('on');clearTimeout(tt);tt=setTimeout(()=>$('#toast').classList.remove('on'),3500)}
+function toggleSide(){$('#side').classList.toggle('hidden')}
+function view(v,b){document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x.textContent==={day:'Dzień',week:'Tydzień',month:'Miesiąc'}[v]));
+ $('#weekv').style.display=v=='month'?'none':'flex';$('#monthv').style.display=v=='month'?'grid':'none';
+ $('#ttl').textContent=v=='month'?'Listopad 2026':v=='day'?'Piątek, 13 listopada':'9–15 listopada 2026';
+ document.querySelectorAll('.col,.days div,.allday div').forEach((c,i)=>{const d=c.dataset.d!==undefined?+c.dataset.d:i%7;c.style.display=(v=='day'&&d!=TODAY)?'none':''})}
+function month(){let h=dayN.map(d=>`<div style="color:var(--mut);text-align:center;border-bottom:1px solid var(--line)">${d}</div>`).join('');let day=-6;
+ const evm={9:0,10:1,11:2,12:3,13:4,14:5,15:6};for(let i=0;i<35;i++){day++;const o=day<1||day>30,v=o?(day<1?31+day:day-30):day;
+ const evs=!o&&evm[day]!==undefined?E.filter(e=>e.d==evm[day]&&vis[e.c]):(!o&&day%3==0?[{t:'Stand-up',c:'praca',s:9}]:[]);
+ h+=`<div style="${o?'opacity:.4':''}"><i ${!o&&day==13?'style="color:var(--acc);font-weight:700"':''}>${v}</i>${evs.slice(0,3).map(e=>`<span style="--c:${C[e.c]}">${fmt(e.s)} ${e.t}</span>`).join('')}${evs.length>3?`<i>+${evs.length-3} więcej</i>`:''}</div>`}
+ $('#monthv').innerHTML=h;$('#monthv').style.gridTemplateRows='24px repeat(5,1fr)'}
+// szybkie dodawanie
+const DN={poniedziałek:0,pon:0,wtorek:1,środa:2,środę:2,czwartek:3,piątek:4,sobota:5,sobotę:5,niedziela:6,niedzielę:6};
+let P=null;function parse(){const t=$('#pin').value.toLowerCase();if(!t.trim()){$('#prev').innerHTML='';P=null;return}
+ let d=TODAY,s=null,len=1,rep=null,c='praca',tl=$('#pin').value;
+ if(/jutro/.test(t)){d=TODAY+1;tl=tl.replace(/jutro/i,'')} if(/pojutrze/.test(t)){d=TODAY+2;tl=tl.replace(/pojutrze/i,'')}
+ for(const k in DN){const re=new RegExp('(w |we )?'+k,'i');if(re.test(t)){d=DN[k];tl=tl.replace(re,'');break}}
+ const m=t.match(/(\d{1,2})[:.](\d{2})|(?:o |godz\.? )(\d{1,2})\b/);if(m){s=+(m[1]||m[3])+(m[2]?+m[2]/60:0);tl=tl.replace(/(o |godz\.? )?\d{1,2}([:.]\d{2})?/i,'')}
+ const l=t.match(/(\d+)\s*(min|h|godz)/);if(l){len=l[2]=='min'?+l[1]/60:+l[1];tl=tl.replace(/\d+\s*(min|h|godz\w*)/i,'')}
+ if(/co tydzień/.test(t)){rep='co tydzień';tl=tl.replace(/co tydzień/i,'')} if(/codziennie/.test(t)){rep='codziennie';tl=tl.replace(/codziennie/i,'')}
+ if(/siłown|basen|rower|bieg/.test(t))c='sport';if(/obiad|dom|lekarz|badani/.test(t))c='dom';
+ tl=tl.replace(/\s+/g,' ').trim();tl=tl.charAt(0).toUpperCase()+tl.slice(1);
+ P={d,s:s??10,e:(s??10)+len,t:tl||'Nowe wydarzenie',c,rep};
+ $('#prev').innerHTML=`<span>📌 <b>${P.t}</b></span><span>📅 ${dayN[d]} ${dates[d]} lis</span><span>🕐 ${s==null?'<i>brak godziny → 10:00</i>':fmt(P.s)}–${fmt(P.e)}</span>${rep?`<span>🔁 ${rep}</span>`:''}<span style="border-left:3px solid ${C[c]}">${calNames[c]}</span>`}
+function palKey(e){if(e.key=='Escape')closePal();if(e.key=='Enter'&&P){const n={id:id++,...P};E.push(n);closePal();sel=n.id;render();toast('Dodano „'+n.t+'”')}}
+function openPal(){$('#pal').classList.add('on');$('#pin').value='';$('#prev').innerHTML='<span style="color:var(--mut);background:none">np. „Przegląd projektu w piątek 10:30 45 min co tydzień”</span>';setTimeout(()=>$('#pin').focus(),0)}
+function closePal(){$('#pal').classList.remove('on')}
+addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key=='k'){e.preventDefault();openPal();return}
+ if(e.ctrlKey&&e.key=='\\'){toggleSide();return}
+ if(document.activeElement.tagName=='INPUT')return;
+ if(e.key=='Escape'){sel=null;render()}if(e.key=='m')view('month');if(e.key=='w')view('week');if(e.key=='d')view('day');if(e.key=='t')toast('Dziś: piątek 13 listopada');
+ if((e.key=='Delete'||e.key=='Backspace')&&sel)del(sel);if(e.ctrlKey&&e.key=='z')undo()});
+build();$('#scroll').scrollTop=(8-H0)*HH;
+</script></body></html>

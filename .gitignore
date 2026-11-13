@@ -1,0 +1,10 @@
+/target
+*.db
+*.db-wal
+*.db-shm
+/shots
+.DS_Store
+
+# lokalne artefakty
+app/~/
+.qmlls.ini

@@ -1,0 +1,25 @@
+[package]
+name = "kronoa-core"
+description = "Kronoa calendar engine: events, local SQLite store, recurrence, quick-add parser, CalDAV and ICS sources"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+anyhow.workspace = true
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono-tz = "0.10"
+iana-time-zone = "0.1"
+rusqlite = { version = "0.40", features = ["bundled"] }
+regex = "1"
+roxmltree = "0.20"
+toml = "0.8"
+dirs = "6"
+ureq = { version = "3", default-features = false, features = ["rustls"] }
+base64 = "0.22"
+uuid = { version = "1", features = ["v4"] }
+keyring = { version = "3", features = ["sync-secret-service", "crypto-rust"] }

@@ -1,0 +1,7 @@
+# Kronoa settings (normally edited in the app: Settings)
+language = "auto"        # auto | en | pl
+week_start = "monday"
+time_format = "24h"      # 24h | 12h | system
+default_view = "week"
+default_reminder = 10
+sync_interval = 15

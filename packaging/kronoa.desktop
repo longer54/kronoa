@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Kronoa
+Comment=Fast native calendar
+Comment[pl]=Szybki, natywny kalendarz
+Exec=kronoa
+Icon=kronoa
+Categories=Office;Calendar;
+StartupWMClass=kronoa
+Terminal=false
