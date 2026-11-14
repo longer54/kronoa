@@ -14,6 +14,9 @@ Silnik w Ruście · interfejs Qt 6 / QML · po polsku i angielsku
 
 </div>
 
+<p align="center"><img src="docs/screenshots/kronoa-quick-add.gif" width="860" alt="Szybkie dodawanie: zdanie zamienia się w wydarzenie"></p>
+<p align="center">*Szybkie dodawanie (Ctrl+K): wpisujesz zdanie, Kronoa robi z niego wydarzenie. Dane demonstracyjne.*</p>
+
 Kronoa to otwartoźródłowy kalendarz na pulpit. Silnik (`kronoa-core`) jest napisany w Ruście,
 a interfejs to Qt Quick podpięty przez cxx-qt — to nie jest powłoka przeglądarkowa, więc startuje
 szybko i mało waży. Trzyma kalendarze lokalne i synchronizuje się z Google Calendar, serwerami

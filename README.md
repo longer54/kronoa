@@ -14,6 +14,9 @@ Rust engine · Qt 6 / QML interface · English and Polish
 
 </div>
 
+<p align="center"><img src="docs/screenshots/kronoa-quick-add.gif" width="860" alt="Quick add: type a sentence, get an event"></p>
+<p align="center">*Quick add (Ctrl+K): type a sentence, Kronoa turns it into an event. Demo data.*</p>
+
 Kronoa is an open-source desktop calendar. The engine (`kronoa-core`) is written in Rust and the
 interface is Qt Quick bound through cxx-qt, so it is not a browser shell: it starts quickly and
 stays light on memory. It keeps local calendars and syncs with Google Calendar, CalDAV servers and
